@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EasyInbox", "EasyInbox\EasyInbox.fsproj", "{37049693-B315-4DD5-8843-79EACEF50E1B}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "EasyInbox.Test", "EasyInbox.Test\EasyInbox.Test.fsproj", "{B2EF304A-1822-42D3-872D-3BAC31BCAEB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37049693-B315-4DD5-8843-79EACEF50E1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37049693-B315-4DD5-8843-79EACEF50E1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37049693-B315-4DD5-8843-79EACEF50E1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37049693-B315-4DD5-8843-79EACEF50E1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2EF304A-1822-42D3-872D-3BAC31BCAEB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2EF304A-1822-42D3-872D-3BAC31BCAEB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2EF304A-1822-42D3-872D-3BAC31BCAEB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2EF304A-1822-42D3-872D-3BAC31BCAEB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED8CB55D-D546-4241-8E8A-85297B509381}
+	EndGlobalSection
+EndGlobal
