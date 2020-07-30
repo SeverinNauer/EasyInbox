@@ -6,4 +6,4 @@ open Mail
 
 [<Fact>]
 let ``Read Inbox Count`` () =
-    Mail.readAllMail
+    Mail.readAllMail "test.easyinbox@gmail.com"
