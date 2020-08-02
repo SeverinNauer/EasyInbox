@@ -7,9 +7,12 @@ open Google.Apis.Auth.OAuth2
 open System.Threading
 open System.IO
 
+[<Literal>]
+let GMAIL_SECRET_PATH = ".\Secrets\gmailsecret.apps.googleusercontent.com.json"
+
 
 let getAuth email = 
-    use stream = new FileStream(@"D:\dev\secrets\client_secret_51444050718-r03e10jrr33rhrc352sis1joenk836g5.apps.googleusercontent.com.json",FileMode.Open,FileAccess.Read)
+    use stream = new FileStream(GMAIL_SECRET_PATH, FileMode.Open, FileAccess.Read)
     let secrets = GoogleClientSecrets.Load(stream).Secrets
     GoogleWebAuthorizationBroker.AuthorizeAsync(secrets, [ "https://mail.google.com/" ], email, CancellationToken.None) 
     |> Async.AwaitTask 

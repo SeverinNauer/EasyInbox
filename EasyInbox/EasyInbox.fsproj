@@ -5,10 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Secrets\Secret.md" />
+    <None Include="Secrets\.gitignore" />
+    <Content Include="Secrets\gmailsecret.apps.googleusercontent.com.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Mail.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="Google.Apis.Auth" Version="1.48.0" />
