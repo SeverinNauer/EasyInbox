@@ -1,10 +1,19 @@
-﻿module Core
+﻿module EasyInbox
 
-type EmailAdress = EmailAdress of string
+type EmailAddress = private EmailAddress of string
+
+module EmailAddress = 
+    let create field (emailStr: string) = 
+        if emailStr.Contains("@") then
+            Ok <| EmailAddress(emailStr)
+        else
+            Error <| sprintf "Invalid email address for field: %s" field
+
+    let value = function | EmailAddress mail -> mail
 
 type Account = {
     Username: string
-    Email: EmailAdress
+    Email: EmailAddress
 }
 
 type EmailProvider = 
@@ -15,7 +24,7 @@ type EmailProvider =
 type EmailInbox = {
     Account: Account
     Provider: EmailProvider
-    ScannerEmail: EmailAdress
+    ScannerEmail: EmailAddress
 }
 
 type NetworkAdress = NetworkAdress of string
