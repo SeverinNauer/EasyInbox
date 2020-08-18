@@ -13,7 +13,7 @@ let readForInbox (inbox: EmailInbox) =
     client.Authenticate(auth)
     client.Inbox.Open FolderAccess.ReadOnly |> ignore
 
-    let mailIds = client.Inbox.Search(SearchQuery.FromContains(inbox.ScannerEmail |> EmailAddress.value))
+    let mailIds = client.Inbox.Search(SearchQuery.FromContains(inbox.Sender |> List.head |> fun s -> s.Value))
 
     let mails = mailIds |> Seq.map (fun id -> client.Inbox.GetMessage(id)) |> Seq.toList
 

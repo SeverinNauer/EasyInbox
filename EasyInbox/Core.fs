@@ -1,6 +1,7 @@
 ﻿module EasyInbox
 
 type EmailAddress = private EmailAddress of string
+    with member x.Value = let (EmailAddress e) = x in e
 
 module EmailAddress = 
     let create field (emailStr: string) = 
@@ -24,7 +25,7 @@ type EmailProvider =
 type EmailInbox = {
     Account: Account
     Provider: EmailProvider
-    ScannerEmail: EmailAddress
+    Sender: EmailAddress list
 }
 
 type NetworkAdress = NetworkAdress of string

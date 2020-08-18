@@ -10,7 +10,7 @@ let createEmail field addr =
 let testInbox: EmailInbox = {
     Account = {Username = "Gmail account"; Email = createEmail "Account email" "test.easyinbox@gmail.com" }
     Provider = Gmail
-    ScannerEmail =  createEmail "Scanner email" "scanner.easyinbox@gmail.com"
+    Sender =  [createEmail "Scanner email" "scanner.easyinbox@gmail.com"]
 }
 
 [<Fact>]
