@@ -10,10 +10,7 @@ module EmailAddress =
         else
             Error <| sprintf "Invalid email address for field: %s" field
 
-    let value = function | EmailAddress mail -> mail
-
 type Account = {
-    Username: string
     Email: EmailAddress
 }
 
