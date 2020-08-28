@@ -1,16 +1,16 @@
 ﻿module Authentication
 
-open EasyInbox
 open MailKit.Security
 open System
 open Google.Apis.Auth.OAuth2
 open System.IO
 open System.Threading
+open Account
 
 module private GmailAuthentication = 
 
     [<Literal>]
-    let private GMAIL_SECRET_PATH = ".\Secrets\gmailsecret.apps.googleusercontent.com.json"
+    let private GMAIL_SECRET_PATH = ".\Account\Secrets\gmailsecret.apps.googleusercontent.com.json"
 
     let private refreshGmailAuth (creds: UserCredential) = 
             async {
@@ -22,15 +22,15 @@ module private GmailAuthentication =
             }
 
 
-    let authenticate (account: Account) = 
+    let authenticate: Authenticate = fun mail ->
         async {
             use stream = new FileStream(GMAIL_SECRET_PATH, FileMode.Open, FileAccess.Read)
             let secrets = GoogleClientSecrets.Load(stream).Secrets
             let! creds = 
-                GoogleWebAuthorizationBroker.AuthorizeAsync(secrets, [ "https://mail.google.com/" ], EmailAddress.value(account.Email), CancellationToken.None) 
+                GoogleWebAuthorizationBroker.AuthorizeAsync(secrets, [ "https://mail.google.com/" ], mail.Value, CancellationToken.None) 
                 |> Async.AwaitTask 
-            refreshGmailAuth creds |> Async.RunSynchronously
-            return  SaslMechanismOAuth2(creds.UserId, creds.Token.AccessToken)
+            do! refreshGmailAuth creds
+            return  { Email = mail ; Token = SaslMechanismOAuth2(creds.UserId, creds.Token.AccessToken) }
         }
 
 

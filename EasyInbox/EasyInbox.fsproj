@@ -5,14 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Secrets\Secrets.md" />
-    <None Include="Secrets\.gitignore" />
-    <Content Include="Secrets\gmailsecret.apps.googleusercontent.com.json">
+    <Compile Include="Core.fs" />
+    <None Include="Account\Secrets\Secrets.md" />
+    <None Include="Account\Secrets\.gitignore" />
+    <Content Include="Account\Secrets\gmailsecret.apps.googleusercontent.com.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Compile Include="Core.fs" />
-    <Compile Include="Authentication.fs" />
-    <Compile Include="Mail.fs" />
+    <Compile Include="Account\Account.fs" />
+    <Compile Include="Account\Authentication.fs" />
+    <Compile Include="Mail\Mail.fs" />
+    <Compile Include="Mail\Inbox.fs" />
   </ItemGroup>
 
   <ItemGroup>
