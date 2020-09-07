@@ -1,0 +1,13 @@
+﻿<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="TabItem.first">
+        <Setter Property="Margin" Value="0 20 0 0" />
+    </Style>
+    <Style Selector="TabItem">
+        <Setter Property="Background" Value="#FFFFFF" />
+        <Setter Property="Opacity" Value="0.1" />
+    </Style>
+    <Style Selector="TabItem:selected">
+        <Setter Property="Background" Value="#383838" />
+        <Setter Property="Opacity" Value="1" />
+    </Style>    
+</Styles>

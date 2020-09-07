@@ -6,11 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<AvaloniaResource Include="Assets\*" />
+	<AvaloniaResource Include="Assets\**\*" />
+    <AvaloniaResource Include="**\*.xaml" />
+    <Content Include="Styles\TabControl.xaml" />
+    <Content Include="Styles\Styles.xaml" />
+    <Content Include="Assets\Images\TabBackground.jpg" />
+    <Compile Include="Icons.fs" />
     <Compile Include="Root.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-
-  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="0.9.12" />
@@ -21,6 +26,15 @@
 
   <ItemGroup>
     <EmbeddedResource Remove=".template.config\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Update="Assets\FluentUiIcons_Filled.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
+    <AvaloniaResource Update="Assets\FluentUiIcons_Regular.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
   </ItemGroup>
 
   <ItemGroup>

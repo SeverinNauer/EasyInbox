@@ -7,13 +7,11 @@ open Avalonia.Input
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
-open Avalonia.Controls
 
 type MainWindow() as this =
     inherit HostWindow()
     do
         base.Title <- "EasyInbox.Client"
-        base.WindowState <- WindowState.Maximized
         base.Width <- 1000.0
         base.Height <- 800.0
 
@@ -32,6 +30,7 @@ type App() =
     override this.Initialize() =
         this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
         this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"
+        this.Styles.Load "avares://EasyInbox.Client/Styles/Styles.xaml"
 
     override this.OnFrameworkInitializationCompleted() =
         match this.ApplicationLifetime with
