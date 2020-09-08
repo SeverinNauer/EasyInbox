@@ -10,30 +10,14 @@ open Avalonia.Platform
 open Avalonia
 open Avalonia.Media
 
-[<AutoOpen>]
-module Extensions =
-
-    type Bitmap with
-        static member Create (s: string) : Bitmap =
-            let uri =
-                if s.StartsWith("/")
-                then Uri("avares://EasyInbox.Client/Assets" + s, UriKind.RelativeOrAbsolute)
-                else Uri(s, UriKind.RelativeOrAbsolute);
-
-        
-            let assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            new Bitmap(assets.Open( uri));
 
 module Navigation = 
 
     let Navigation =
-        let brush =  Bitmap.Create "/Images/TabBackground.jpg" |> ImageBrush
-        brush.Stretch <- Stretch.UniformToFill
         Grid.create [
             Grid.rowDefinitions "* auto"
             Grid.children [
                 TabControl.create [
-                    TabControl.background "#414244"
                     TabControl.tabStripPlacement Dock.Left
                     TabControl.padding 0.0
                     TabControl.viewItems [

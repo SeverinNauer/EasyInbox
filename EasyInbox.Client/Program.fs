@@ -7,6 +7,8 @@ open Avalonia.Input
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
+open Live.Avalonia
+open Avalonia.FuncUI.DSL
 
 type MainWindow() as this =
     inherit HostWindow()
@@ -27,10 +29,12 @@ type MainWindow() as this =
         
 type App() =
     inherit Application()
+
     override this.Initialize() =
         this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
         this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"
         this.Styles.Load "avares://EasyInbox.Client/Styles/Styles.xaml"
+        this.Styles.Load "avares://EasyInbox.Client/Styles/BaseTheme.xaml"
 
     override this.OnFrameworkInitializationCompleted() =
         match this.ApplicationLifetime with
