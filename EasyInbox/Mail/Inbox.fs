@@ -41,7 +41,7 @@ let readNewMails: ReadNewMails = fun sortedMails -> fun inbox ->
     async {
         let (host,port) = GetImapSettings inbox.Provider
         use client = new ImapClient()
-        do! client.ConnectAsync(host, port, true) |> Async.AwaitTask
+        client.Connect(host, port, true)
         match inbox.Account with
         | Authorized acc ->
             do! client.AuthenticateAsync(acc.Token) |> Async.AwaitTask
@@ -53,7 +53,7 @@ let readNewMails: ReadNewMails = fun sortedMails -> fun inbox ->
                 |> Seq.filter(fun mId -> not(sortedMails 
                 |> List.contains mId)) 
                 |> Seq.map(fun id -> (id,client.Inbox.GetMessage(id))) 
-            do! client.DisconnectAsync(true) |> Async.AwaitTask 
+            //do! client.DisconnectAsync(true) |> Async.AwaitTask 
             return messages 
                    |> Seq.map(fun (id,m) ->  
                        (Mail.Mapping.createEmailDataFromMessage(m,id),

@@ -27,7 +27,7 @@ module private GmailAuthentication =
             use stream = new FileStream(GMAIL_SECRET_PATH, FileMode.Open, FileAccess.Read)
             let secrets = GoogleClientSecrets.Load(stream).Secrets
             let! creds = 
-                GoogleWebAuthorizationBroker.AuthorizeAsync(secrets, [ "https://mail.google.com/" ], mail.Value, CancellationToken.None) 
+                GoogleWebAuthorizationBroker.AuthorizeAsync(secrets, [ "https://www.googleapis.com/auth/gmail.readonly" ], mail.Value, CancellationToken.None) 
                 |> Async.AwaitTask 
             do! refreshGmailAuth creds
             return  { Email = mail ; Token = SaslMechanismOAuth2(creds.UserId, creds.Token.AccessToken) }
