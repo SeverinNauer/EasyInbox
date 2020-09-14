@@ -75,7 +75,7 @@ module Mapping =
     let createContactInformationFromMessage (message: MimeMessage): ContactInformation = 
         let sender = 
             message.From.Mailboxes |> Seq.head |> (fun m -> m.Address) 
-            |> EmailAddress.create "Email Sender" |> function | Ok sEmail -> sEmail
+            |> EmailAddress.create |> function | Ok sEmail -> sEmail
         {   Sender = sender
             To = []
             Cc = None

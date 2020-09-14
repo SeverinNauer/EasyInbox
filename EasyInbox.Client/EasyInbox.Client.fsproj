@@ -6,17 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<Watch Include="**\*.fs" />
-	<Page Include="BaseTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
 	<AvaloniaResource Include="**\*.xaml" />
-	<Watch Include="**\*.xaml" />
 	<AvaloniaResource Include="Assets\*" />
 	<AvaloniaResource Include="Assets\**\*" />
-    <Content Include="Styles\TabControl.xaml" />
+	<Compile Include="InboxView.fs" />
+	<Content Include="Styles\TabControl.xaml" />
     <Content Include="Styles\Styles.xaml" />
-    <Content Include="Assets\Images\TabBackground.jpg" />
     <Compile Include="Icons.fs" />
     <Compile Include="Root.fs" />
     <Compile Include="Program.fs" />
@@ -39,22 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Watch Remove="BaseTheme.xaml" />
-    <Watch Remove="Styles\BaseTheme.xaml" />
-  </ItemGroup>
-
-  <ItemGroup />
-
-  <ItemGroup>
-    <AvaloniaResource Update="Assets\FluentUiIcons_Filled.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Assets\FluentUiIcons_Regular.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaResource>
-    <AvaloniaResource Update="Styles\BaseTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaResource>
+    <ProjectReference Include="..\EasyInbox.Core\EasyInbox.Core.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

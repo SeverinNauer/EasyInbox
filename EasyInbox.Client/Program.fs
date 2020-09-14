@@ -33,6 +33,7 @@ type App() =
     override this.Initialize() =
         this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
         this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"
+        this.Styles.Load "avares://EasyInbox.Client/Styles/BaseStyles.xaml"
         this.Styles.Load "avares://EasyInbox.Client/Styles/Styles.xaml"
         this.Styles.Load "avares://EasyInbox.Client/Styles/BaseTheme.xaml"
 

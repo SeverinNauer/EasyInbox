@@ -1,0 +1,9 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <Style Selector="Button.primary">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="{DynamicResource PrimaryColorBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColorBrush}"/>
+    </Style>
+</Styles>

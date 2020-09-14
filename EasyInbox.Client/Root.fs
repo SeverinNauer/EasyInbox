@@ -3,37 +3,8 @@
 open Avalonia.Controls
 open Avalonia.FuncUI.DSL
 open Avalonia.Input
-open Avalonia.Layout
-open Avalonia.Media.Imaging
-open System 
-open Avalonia.Platform
-open Avalonia
-open Avalonia.Media
+open Avalonia.FuncUI.Builder
 
-
-module Navigation = 
-
-    let Navigation =
-        Grid.create [
-            Grid.rowDefinitions "* auto"
-            Grid.children [
-                TabControl.create [
-                    TabControl.tabStripPlacement Dock.Left
-                    TabControl.padding 0.0
-                    TabControl.viewItems [
-                        TabItem.create [
-                            TabItem.classes ["first"]
-                            TabItem.cursor <| Cursor(StandardCursorType.Hand)
-                            TabItem.header Icons.MailIcon
-                        ]                        
-                        TabItem.create [
-                            TabItem.cursor <| Cursor(StandardCursorType.Hand)
-                            TabItem.header Icons.FileMultiple
-                        ]
-                    ]
-                ]
-            ]
-        ]
 
 module Root = 
     
@@ -51,14 +22,25 @@ module Root =
 
     let view (state: Page) dispatch = 
         Grid.create [
-            Grid.rowDefinitions "*"
-            Grid.columnDefinitions "auto *"
-            Grid.children [
-                Navigation.Navigation
-                TextBlock.create [
-                    TextBlock.text "Test"
-                    Grid.column 1
-                ]
-            ]
+           Grid.rowDefinitions "*"
+           Grid.rowDefinitions "*"
+           Grid.children [
+               TabControl.create [
+                   TabControl.tabStripPlacement Dock.Left
+                   TabControl.padding 0.0
+                   TabControl.viewItems [
+                       TabItem.create [
+                           TabItem.classes ["first"]
+                           TabItem.cursor <| Cursor(StandardCursorType.Hand)
+                           TabItem.header Icons.MailIcon
+                           TabItem.content (ViewBuilder.Create<InboxView.Host>([ Grid.row 0 ; Grid.column 0]))
+                       ]                        
+                       TabItem.create [
+                           TabItem.cursor <| Cursor(StandardCursorType.Hand)
+                           TabItem.header Icons.FileMultiple
+                       ]
+                   ]
+               ]
+           ]
         ]
         

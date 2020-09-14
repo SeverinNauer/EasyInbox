@@ -1,7 +1,9 @@
-﻿<Styles
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime">
 
     <StyleInclude Source="avares://EasyInbox.Client/Styles/TabControl.xaml"/>
+    <StyleInclude Source="avares://EasyInbox.Client/Styles/BaseStyles.xaml"/>
+
 
 </Styles>
