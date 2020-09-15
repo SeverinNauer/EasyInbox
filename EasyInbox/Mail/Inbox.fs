@@ -20,7 +20,7 @@ let ensurePath path =
         with
             | :? _ -> failwith <| sprintf "Can not create Directory with path '%s'" path
 
-let writeFile fileName (attachment:MimeEntity) =
+let writeFile (fileName: string) (attachment:MimeEntity) =
     Directory.CreateDirectory (Path.GetDirectoryName(fileName)) |> ignore
     use stream = File.Create fileName
     match attachment with

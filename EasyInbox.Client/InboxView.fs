@@ -25,17 +25,17 @@ type State =
 let init = NewAccount(New(""))
 
 type Msg = 
-    | Authorize    
+    | Authorize of Email:string    
     | ChangeNewEmail of Email:string
 
 
 let update msg state = 
-    match (msg, state) with 
-    | Authorize, (NewAccount(New(email)) | NewAccount(Invalid(email,_))) -> 
+    match msg with 
+    | Authorize(email) -> 
         match EmailAddress.create email with
         | Ok(email) -> State.AuthorizedAccount({EmailAddress = email}) 
         | Error(error) -> State.NewAccount(Invalid(email,error)) 
-    | ChangeNewEmail email, _ -> NewAccount(New(email)) 
+    | ChangeNewEmail email -> NewAccount(New(email)) 
     | _ -> NewAccount(New(""))
 
 let view (state: State) dispatch = 
@@ -57,28 +57,24 @@ let view (state: State) dispatch =
                         TextBlock.create [
                             TextBlock.text "Email address"
                         ]
-                        match acc with 
-                        | New email -> 
-                            TextBox.create [
-                                TextBox.width 200.0
-                                TextBox.text email
-                                TextBox.onTextChanged (fun text -> dispatch(ChangeNewEmail text))
-                                TextBox.margin (0.0, 7.5, 0.0, 7.5)
-                            ]
-                        | Invalid (email, error) ->
-                            TextBox.create [
-                                TextBox.width 200.0
-                                TextBox.text email
-                                TextBox.onTextChanged (fun text -> dispatch(ChangeNewEmail text))
-                                TextBox.margin (0.0, 7.5, 0.0, 7.5)
-                                TextBox.errors <| ([error :> obj] |> Seq.ofList)
-                                TextBox.hasErrors true
-                            ]
+                        let (email, error) = 
+                            match acc with 
+                            | New email -> (email, None)
+                            | Invalid(email, error) -> (email, Some(error))
+                        TextBox.create [
+                            TextBox.width 200.0
+                            TextBox.text email
+                            TextBox.onTextChanged (fun text -> dispatch(ChangeNewEmail text))
+                            match error with 
+                            | Some error -> yield! [TextBox.errors [error]]
+                            | None -> yield! []
+                            TextBox.margin (0.0, 7.5, 0.0, 7.5)
+                        ]
                         Button.create [
                             Button.content "Add Account"
                             Button.classes [ "primary" ]
                             Button.horizontalAlignment HorizontalAlignment.Right
-                            Button.onClick (fun _ -> Authorize |> dispatch )
+                            Button.onClick ((fun _ -> Authorize(email) |> dispatch ), SubPatchOptions.Always)
                         ]
                     ]
                 ]
