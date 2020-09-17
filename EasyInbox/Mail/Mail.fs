@@ -69,22 +69,3 @@ type Email =
 type SortedMails = UniqueId list
 
 type ReadNewMails = SortedMails -> EmailInbox -> Async<(EmailData * UnsortedAttachement list) list>
-
-module Mapping = 
-    
-    let createContactInformationFromMessage (message: MimeMessage): ContactInformation = 
-        let sender = 
-            message.From.Mailboxes |> Seq.head |> (fun m -> m.Address) 
-            |> EmailAddress.create |> function | Ok sEmail -> sEmail
-        {   Sender = sender
-            To = []
-            Cc = None
-            Bcc = None  } 
-
-    let createEmailDataFromMessage (message: MimeMessage, id: UniqueId): EmailData = {
-            Id = id
-            ContactInformation = createContactInformationFromMessage message
-            Subject = message.Subject
-            Body = Some(EmailBody.Body(message.Body))
-            Date = message.Date.UtcDateTime
-        }

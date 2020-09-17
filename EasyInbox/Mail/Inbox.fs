@@ -37,7 +37,7 @@ let GetImapSettings = function
     | Gmail -> ("imap.gmail.com", 993)
     | _ -> failwith "unimplemented provider"
 
-let readNewMails: ReadNewMails = fun sortedMails -> fun inbox -> 
+(* let readNewMails: ReadNewMails = fun sortedMails -> fun inbox -> 
     async {
         let (host,port) = GetImapSettings inbox.Provider
         use client = new ImapClient()
@@ -78,4 +78,4 @@ let readNewMails: ReadNewMails = fun sortedMails -> fun inbox ->
                    ) |> Seq.toList
 
         | _ -> return failwith "Unauthorized account"
-    }
+    }*)

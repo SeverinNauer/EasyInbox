@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EasyInbox.Api\EasyInbox.Api.fsproj" />
     <ProjectReference Include="..\EasyInbox.Core\EasyInbox.Core.fsproj" />
   </ItemGroup>
 
