@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<Compile Include="CreateAccount.fs" />
 	<AvaloniaResource Include="**\*.xaml" />
 	<AvaloniaResource Include="Assets\*" />
 	<AvaloniaResource Include="Assets\**\*" />
