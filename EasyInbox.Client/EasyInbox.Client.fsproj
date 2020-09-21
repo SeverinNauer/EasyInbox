@@ -6,14 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<Compile Include="CreateAccount.fs" />
 	<AvaloniaResource Include="**\*.xaml" />
 	<AvaloniaResource Include="Assets\*" />
 	<AvaloniaResource Include="Assets\**\*" />
-	<Compile Include="InboxView.fs" />
 	<Content Include="Styles\TabControl.xaml" />
     <Content Include="Styles\Styles.xaml" />
     <Compile Include="Icons.fs" />
+    <Compile Include="CreateAccount.fs" />
+    <Compile Include="InboxView.fs" />
     <Compile Include="Root.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

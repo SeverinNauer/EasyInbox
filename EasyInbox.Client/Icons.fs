@@ -28,5 +28,17 @@ let FileMultiple =
             ]
         ]
     ]
+
+let AddIcon = 
+    Canvas.create [
+        Canvas.width 24.0
+        Canvas.height 24.0
+        Canvas.children [
+            Path.create [
+                Path.fill "white"
+                Path.data "M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"
+            ]
+        ]
+    ]
     
 

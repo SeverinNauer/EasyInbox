@@ -8,17 +8,22 @@ open Avalonia.FuncUI.DSL
 open Avalonia.Controls 
 open Avalonia.Layout
 open Avalonia.FuncUI.Components.Hosts
-open Avalonia.FuncUI
 open Avalonia.FuncUI.Elmish
-open Avalonia.FuncUI.Types
+open Avalonia.Input
+open Icons 
+open EasyInbox.Api.CreateAccount
+open Avalonia.Controls
+open Avalonia.Controls
+open Avalonia.FuncUI.DSL
 open Avalonia.Controls
 open Avalonia.Controls
 open Avalonia.Controls
+open Avalonia.FuncUI.Components
 open Avalonia.Controls
 open Avalonia.Controls
+open Avalonia.Controls.Templates
 open Avalonia.Controls
 open Avalonia.Controls
-open Avalonia.Layout
 open Avalonia.Controls
 
 type User = {
@@ -27,12 +32,18 @@ type User = {
     //TODO probably move up to application state
 }
 
+type AuthorizedAccount = {
+    User: User
+    Inbox: EmailInbox seq
+    SelectedIndex: int option
+}
+
 type NewAccount = 
     | New of Email:string
     | Invalid of Email:string * Error:string
 
 type State =
-    | AuthorizedAccount of User
+    | AuthorizedAccount of AuthorizedAccount 
     | IsLoading
     | NewAccount of NewAccount
 
@@ -43,6 +54,7 @@ type Msg =
     | Authorize of Email:string    
     | ChangeNewEmail of Email:string
     | SetAuthorized of Email: EmailAddress * token: UserCredential
+    | AddInbox of AuthorizedAccount 
 
 let update msg state = 
     match msg with 
@@ -52,8 +64,10 @@ let update msg state =
             IsLoading, Cmd.OfAsync.either Authorization.authorizeGmailCommand email (fun (mail, token) -> SetAuthorized(mail,token))  (fun ex -> ChangeNewEmail(email.Value)) 
         | Error(error) -> State.NewAccount(Invalid(email,error)), Cmd.none 
     | ChangeNewEmail email -> NewAccount(New(email)), Cmd.none 
+    | AddInbox(account) -> 
+        State.AuthorizedAccount {account with Inbox = account.Inbox  |> Seq.append [{Sender = ""; Name = sprintf "Inbox %d" <| (account.Inbox |> Seq.length); Description = "" }]; SelectedIndex = Some(account.Inbox |> Seq.length)  }, Cmd.none 
     | SetAuthorized(email,token) ->
-        State.AuthorizedAccount {EmailAddress = email; Token = token}, Cmd.none
+        State.AuthorizedAccount {User = { EmailAddress = email ; Token = token }; Inbox = []; SelectedIndex = None}, Cmd.none
 
 let h1 = [
     TextBlock.fontSize <| double 18
@@ -71,14 +85,23 @@ let header title attrs =
         ]
     ]
 
+let viewBoxItem inboxItem = 
+    StackPanel.create [
+        StackPanel.children [
+            TextBlock.create [
+                TextBlock.text inboxItem.Name
+            ]
+        ]
+    ]
+
 let view state dispatch =
     Grid.create [
         Grid.rowDefinitions("auto * auto *") 
         Grid.columnDefinitions "* auto *"
         Grid.children [
             match state with
-            | AuthorizedAccount user -> 
-                header "Create account" [Grid.columnSpan 3]
+            | AuthorizedAccount (account) -> 
+                header "Create account / Add Inbox" [Grid.columnSpan 3]
                 Grid.create [
                     Grid.row 1
                     Grid.rowSpan 2
@@ -90,23 +113,45 @@ let view state dispatch =
                             Grid.column 0
                             Grid.children [
                                 DockPanel.create [
-                                    StackPanel.children [
+                                    DockPanel.children [
                                         TextBlock.create [
                                             TextBlock.fontSize 16.0
-                                            TextBlock.text "Add Inbox"
+                                            TextBlock.text "Inbox"
                                             TextBlock.margin(10.0, 15.0)
+                                            TextBlock.verticalAlignment VerticalAlignment.Center
                                             TextBlock.dock Dock.Left
                                         ]
                                         Button.create [
                                             Button.margin(10.0, 15.0)
-                                            Button.content "Add"    
+                                            Button.content AddIcon 
+                                            Button.onClick ((fun _ -> AddInbox(account) |> dispatch), SubPatchOptions.OnChangeOf(account))
                                             Button.horizontalAlignment HorizontalAlignment.Right
+                                            Button.cursor <| Cursor(StandardCursorType.Hand)
                                             Button.dock Dock.Right
                                         ]
                                     ]
                                 ]
+                                ListBox.create [
+                                    Grid.row 1
+                                    ListBox.dataItems account.Inbox
+                                    ListBox.selectedIndex <| (account.SelectedIndex |> Option.defaultValue -1) 
+                                    ListBox.itemTemplate (DataTemplateView<EmailInbox>.create(viewBoxItem)) 
+                                ]
                             ]
                         ] 
+                        match account.SelectedIndex with 
+                        | Some index ->
+                            let selectedItem = account.Inbox |> Seq.item index
+                            StackPanel.create [
+                                Grid.column 1        
+                                Grid.row 1
+                                StackPanel.children [
+                                    TextBox.create [
+                                        TextBox.text selectedItem.Name
+                                    ]
+                                ]
+                            ]
+                        | None -> yield! []
                     ]
                 ]
             | NewAccount(acc) ->
