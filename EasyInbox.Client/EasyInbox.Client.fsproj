@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<Compile Include="Styles\Styles.fs" />
+	<Compile Include="Styles\ControlStyles.fs" />
 	<AvaloniaResource Include="**\*.xaml" />
 	<AvaloniaResource Include="Assets\*" />
 	<AvaloniaResource Include="Assets\**\*" />

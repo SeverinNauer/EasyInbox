@@ -9,6 +9,7 @@ open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
 open Live.Avalonia
 open Avalonia.FuncUI.DSL
+open ControlStyles
 
 type MainWindow() as this =
     inherit HostWindow()
@@ -36,6 +37,8 @@ type App() =
         this.Styles.Load "avares://EasyInbox.Client/Styles/BaseStyles.xaml"
         this.Styles.Load "avares://EasyInbox.Client/Styles/Styles.xaml"
         this.Styles.Load "avares://EasyInbox.Client/Styles/BaseTheme.xaml"
+        for style in ControlStyles.allStyles do
+            this.Styles.Add style
 
     override this.OnFrameworkInitializationCompleted() =
         match this.ApplicationLifetime with

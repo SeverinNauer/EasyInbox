@@ -19,7 +19,10 @@
 	<Style Selector="TabItem:pointerover">
 		<Setter Property="Background" Value="{DynamicResource SecondaryHoverBrush}" />
 	</Style>	
-	<Style Selector="TabItem:pointerover Path">
+	<Style Selector="TabItem:pointerover Path">		
 		<Setter Property="Opacity" Value="1" />
+	</Style>
+	<Style Selector="ListBoxItem">
+		<Setter Property="Padding" Value="0" />
 	</Style>
 </Styles>

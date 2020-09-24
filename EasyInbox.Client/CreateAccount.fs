@@ -25,6 +25,11 @@ open Avalonia.Controls.Templates
 open Avalonia.Controls
 open Avalonia.Controls
 open Avalonia.Controls
+open Avalonia.Styling
+open Avalonia.FuncUI.Types
+open Avalonia.Styling
+open Avalonia.Styling
+open Avalonia.Controls
 
 type User = {
     EmailAddress: EmailAddress 
@@ -104,13 +109,14 @@ let view state dispatch =
                 header "Create account / Add Inbox" [Grid.columnSpan 3]
                 Grid.create [
                     Grid.row 1
-                    Grid.rowSpan 2
+                    Grid.rowSpan 3
                     Grid.columnDefinitions "* 3*"
                     Grid.columnSpan 3
                     Grid.children [
                         Grid.create [
                             Grid.rowDefinitions "auto *"
                             Grid.column 0
+                            Grid.rowSpan 2
                             Grid.children [
                                 DockPanel.create [
                                     DockPanel.children [
@@ -135,7 +141,7 @@ let view state dispatch =
                                     Grid.row 1
                                     ListBox.dataItems account.Inbox
                                     ListBox.selectedIndex <| (account.SelectedIndex |> Option.defaultValue -1) 
-                                    ListBox.itemTemplate (DataTemplateView<EmailInbox>.create(viewBoxItem)) 
+                                    ListBox.itemTemplate (DataTemplateView<EmailInbox>.create(viewBoxItem))
                                 ]
                             ]
                         ] 
