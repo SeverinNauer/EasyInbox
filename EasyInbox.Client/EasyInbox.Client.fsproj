@@ -6,12 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<Compile Include="Styles\Styles.fs" />
-	<Compile Include="Styles\ControlStyles.fs" />
-	<AvaloniaResource Include="**\*.xaml" />
-	<AvaloniaResource Include="Assets\*" />
-	<AvaloniaResource Include="Assets\**\*" />
-	<Content Include="Styles\TabControl.xaml" />
+	  <Compile Include="Styles\Styles.fs" />
+	  <Compile Include="Styles\ControlStyles.fs" />
+	  <AvaloniaResource Include="**\*.xaml" />
+	  <AvaloniaResource Include="Assets\*" />
+	  <AvaloniaResource Include="Assets\**\*" />
+	  <Content Include="Styles\TabControl.xaml" />
     <Content Include="Styles\Styles.xaml" />
     <Compile Include="Icons.fs" />
     <Compile Include="CreateAccount.fs" />

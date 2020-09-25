@@ -12,24 +12,7 @@ open Avalonia.FuncUI.Elmish
 open Avalonia.Input
 open Icons 
 open EasyInbox.Api.CreateAccount
-open Avalonia.Controls
-open Avalonia.Controls
-open Avalonia.FuncUI.DSL
-open Avalonia.Controls
-open Avalonia.Controls
-open Avalonia.Controls
 open Avalonia.FuncUI.Components
-open Avalonia.Controls
-open Avalonia.Controls
-open Avalonia.Controls.Templates
-open Avalonia.Controls
-open Avalonia.Controls
-open Avalonia.Controls
-open Avalonia.Styling
-open Avalonia.FuncUI.Types
-open Avalonia.Styling
-open Avalonia.Styling
-open Avalonia.Controls
 
 type User = {
     EmailAddress: EmailAddress 
@@ -101,7 +84,7 @@ let viewBoxItem inboxItem =
 
 let view state dispatch =
     Grid.create [
-        Grid.rowDefinitions("auto * auto *") 
+        Grid.rowDefinitions "auto * auto *"
         Grid.columnDefinitions "* auto *"
         Grid.children [
             match state with
@@ -112,6 +95,7 @@ let view state dispatch =
                     Grid.rowSpan 3
                     Grid.columnDefinitions "* 3*"
                     Grid.columnSpan 3
+                    Grid.margin 20.0
                     Grid.children [
                         Grid.create [
                             Grid.rowDefinitions "auto *"
@@ -148,15 +132,30 @@ let view state dispatch =
                         match account.SelectedIndex with 
                         | Some index ->
                             let selectedItem = account.Inbox |> Seq.item index
-                            StackPanel.create [
-                                Grid.column 1        
-                                Grid.row 1
-                                StackPanel.children [
-                                    TextBox.create [
-                                        TextBox.text selectedItem.Name
+                            Grid.create [
+                                Grid.column 1
+                                Grid.columnDefinitions "* auto *"
+                                Grid.children [
+                                    Border.create [
+                                        Border.padding 20.0
+                                        Border.background "#414244"
+                                        Grid.column 1
+                                        Border.child (
+                                            StackPanel.create [
+                                                StackPanel.background "#414244"
+                                                StackPanel.children [
+                                                    TextBox.create [
+                                                        TextBox.width 200.0
+                                                        TextBox.text selectedItem.Name
+                                                    ]
+                                                ]
+                                            ]
+                                        )
                                     ]
+                                    
                                 ]
                             ]
+                            
                         | None -> yield! []
                     ]
                 ]

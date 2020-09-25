@@ -8,19 +8,11 @@ open Avalonia.FuncUI
 open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.Components.Hosts
 open Live.Avalonia
-open Avalonia.FuncUI.DSL
-open ControlStyles
+open Avalonia
 
-type MainWindow() as this =
-    inherit HostWindow()
+type MainControl() as this =
+    inherit HostControl()
     do
-        base.Title <- "EasyInbox.Client"
-        base.Width <- 1000.0
-        base.Height <- 800.0
-
-#if DEBUG
-        this.AttachDevTools(KeyGesture(Key.F12))
-#endif
 
 
         Elmish.Program.mkSimple (fun () -> Root.init) Root.update Root.view
@@ -40,10 +32,23 @@ type App() =
         for style in ControlStyles.allStyles do
             this.Styles.Add style
 
+    interface ILiveView with
+        member __.CreateView(window: Avalonia.Controls.Window) =
+            if window.DataContext = null then do
+                window.DataContext <- null
+            window.AttachDevTools(KeyGesture(Key.F12))
+            window.Title <- "EasyInbox"
+            window.Height <- 800.0
+            window.Width <- 1000.0
+            MainControl() :> obj
+
     override this.OnFrameworkInitializationCompleted() =
         match this.ApplicationLifetime with
         | :? IClassicDesktopStyleApplicationLifetime as desktopLifetime ->
-            desktopLifetime.MainWindow <- MainWindow()
+            let window = new LiveViewHost(this, fun msg -> printfn "%s" msg);
+            window.StartWatchingSourceFilesForHotReloading();
+            window.Show();
+            base.OnFrameworkInitializationCompleted()
         | _ -> ()
 
 module Program =
