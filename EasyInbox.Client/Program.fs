@@ -34,8 +34,6 @@ type App() =
 
     interface ILiveView with
         member __.CreateView(window: Avalonia.Controls.Window) =
-            if window.DataContext = null then do
-                window.DataContext <- null
             window.AttachDevTools(KeyGesture(Key.F12))
             window.Title <- "EasyInbox"
             window.Height <- 800.0
