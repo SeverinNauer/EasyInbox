@@ -1,26 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>EasyInbox.Api.App</AssemblyName>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Account\CreateAccount.fs" />
-    <Content Include="Authorization\Secrets\gmailsecret.apps.googleusercontent.com.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="Authorization\Secrets\.gitignore" />
-    <None Include="Authorization\Secrets\Secrets.md" />
-    <Compile Include="Authorization\Authorization.fs" />
+    <PackageReference Include="Giraffe" Version="4.1.*" />
+    <PackageReference Include="TaskBuilder.fs" Version="2.1.*" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Apis.Auth" Version="1.48.0" />
-    <PackageReference Include="MailKit" Version="2.8.0" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EasyInbox.Core\EasyInbox.Core.fsproj" />
+    <None Include="web.config" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
 </Project>
