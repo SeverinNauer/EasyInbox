@@ -11,6 +11,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "EasyInbox.Core", "EasyInbox
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "EasyInbox.Api", "EasyInbox.Api\EasyInbox.Api.fsproj", "{59299387-43E3-4B18-929B-67D483C1632B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyInbox.Migrations", "EasyInbox.Migrations\EasyInbox.Migrations.csproj", "{AA0B4535-CF2B-4E35-962F-E1CFFC9C0075}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{59299387-43E3-4B18-929B-67D483C1632B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59299387-43E3-4B18-929B-67D483C1632B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59299387-43E3-4B18-929B-67D483C1632B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA0B4535-CF2B-4E35-962F-E1CFFC9C0075}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA0B4535-CF2B-4E35-962F-E1CFFC9C0075}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA0B4535-CF2B-4E35-962F-E1CFFC9C0075}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA0B4535-CF2B-4E35-962F-E1CFFC9C0075}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
