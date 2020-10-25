@@ -39,6 +39,7 @@ namespace EasyInbox.Migrations
         {
             var runner = serviceProvider.GetRequiredService<IMigrationRunner>();
             runner.MigrateUp();
+            //runner.MigrateDown(20201024084300);
         }
     }
 }

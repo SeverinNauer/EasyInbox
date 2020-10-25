@@ -10,17 +10,15 @@ open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Configuration
-open Microsoft.AspNetCore.Authentication.Google
-open Microsoft.AspNetCore.Authentication
 open FSharp.Control.Tasks.V2.ContextInsensitive
-open Microsoft.AspNetCore.Authentication.Cookies
 open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.IdentityModel.Tokens
-open Authentication.Types
-open Microsoft.IdentityModel.Tokens
-open Microsoft.IdentityModel.Tokens
+open Authentication.User
 open System.Text
 open System.Security.Claims
+open User.Commands
+open EasyInbox.Persistence
+
 
 
 let authorizedHandler: HttpHandler =
@@ -44,6 +42,8 @@ let loginHandler: HttpHandler =
             return! Successful.OK ({| token = token |}) next ctx
         }
 
+
+
 let authenticate : HttpHandler =
    requiresAuthentication <| RequestErrors.BAD_REQUEST ""
 
@@ -61,7 +61,8 @@ let webApp =
                 routef "/hello/%s" helloHandler
             ]
         POST >=> choose [
-            route "/login" >=> loginHandler
+            route "/account/login" >=> loginHandler
+            route "/account/create" >=> bindJson<CreateUserCommand> (fun com -> (User.Handlers.CreateUserHandler User.Impl.SaveUser com) |> Successful.OK)
             route "/google-login" >=> Successful.OK("Success")
         ]
         setStatusCode 404 >=> text "Not Found" ]
@@ -114,6 +115,7 @@ let jwtBearerOptions (section: IConfigurationSection) (cfg : JwtBearerOptions) =
 let configureServices (services : IServiceCollection) =
     let provider = services.BuildServiceProvider()
     let bearerOptions = jwtBearerOptions <| provider.GetService<IConfiguration>().GetSection("Authentication:Jwt")
+    Builder.setSettings() 
     services.AddCors()    |> ignore
     services.AddGiraffe() |> ignore
     services.AddAuthentication(fun o -> 

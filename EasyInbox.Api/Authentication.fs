@@ -6,18 +6,19 @@ open System
 
 
 
-module Types = 
+   
+   
+
+module User = 
    type UserLogin = {
       EmailAddress: string
       Password: string
    }
 
-open Types
-
-
 module Jwt = 
     open System.Text
     open System.IdentityModel.Tokens.Jwt
+    open User
 
     // there is probably a cleaner way to read the secret from the options
     let mutable jwtSecret: string option = Option.None
