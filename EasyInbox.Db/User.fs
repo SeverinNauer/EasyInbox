@@ -2,20 +2,37 @@
 
 open System
 
-type User = {
-    UserId: Guid
-    Email: string
-    Password: string
-}
-
-type SaveUser = User -> Result<string,string>
-type GetById = Guid -> User option 
-
-
-module Impl =
-
+module Repository =
     open Context
     open LinqToDB
+    open EasyInbox.Persistence.Types
+
+    type SaveUser = User -> Result<string,string>
+    type GetById = Guid -> User option
+    type GetByEmail = string -> User option
+
+    let private defaultToOption<'a when 'a : equality>  = 
+        function
+        | user when user = Unchecked.defaultof<'a> -> None 
+        | _ as u -> Some u
+
+    let GetByEmail: GetByEmail = 
+        fun email -> 
+            use db = new Connection()
+            query {
+                for user in db.GetTable<User>() do
+                where (user.Email = email)
+                exactlyOneOrDefault
+            } |> defaultToOption
+
+    let GetById: GetById = 
+        fun uId ->
+            use db = new Connection()
+            query {
+               for user in db.GetTable<User>() do
+               where (user.UserId = uId)
+               exactlyOneOrDefault 
+            } |> defaultToOption
 
     let SaveUser: SaveUser = 
         fun user -> 

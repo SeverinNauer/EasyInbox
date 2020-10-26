@@ -2,11 +2,6 @@
 
 open Microsoft.IdentityModel.Tokens
 open System.Security.Claims
-open System
-
-
-
-   
    
 
 module User = 
@@ -18,20 +13,23 @@ module User =
 module Jwt = 
     open System.Text
     open System.IdentityModel.Tokens.Jwt
-    open User
+    open EasyInbox.Persistence.Types
+    open System
 
-    // there is probably a cleaner way to read the secret from the options
-    let mutable jwtSecret: string option = Option.None
+    let mutable private jwtSecret: string option = Option.None
+
+    type Microsoft.Extensions.DependencyInjection.IServiceCollection with
+        member x.SetJwtSecret(secret)= jwtSecret <- Some secret
 
     
-    let generateJwtToken (user: UserLogin) =
+    let generateJwtToken (user: User) =
         match jwtSecret with 
         | Some key -> 
             let tokenHandler = JwtSecurityTokenHandler()
             let key = Encoding.ASCII.GetBytes(key)
             let descriptor = 
                 SecurityTokenDescriptor(
-                    Subject = ClaimsIdentity([Claim(ClaimTypes.Name,user.EmailAddress)]), 
+                    Subject = ClaimsIdentity([Claim(ClaimTypes.Name, user.Email)]), 
                     Expires = System.Nullable(DateTime.UtcNow.AddMinutes(15.0)), 
                     SigningCredentials= SigningCredentials(SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)
                 )

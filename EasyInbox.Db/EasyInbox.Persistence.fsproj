@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Types.fs" />
     <Compile Include="Context.fs" />
     <Compile Include="Builder.fs" />
     <Compile Include="User.fs" />

@@ -17,7 +17,9 @@ open Authentication.User
 open System.Text
 open System.Security.Claims
 open User.Commands
+open User
 open EasyInbox.Persistence
+open Authentication.Jwt
 
 
 
@@ -37,9 +39,15 @@ let signinHandler: HttpHandler =
 let loginHandler: HttpHandler = 
     fun (next: HttpFunc)(ctx: HttpContext) ->
         task {
-            let! user = ctx.BindJsonAsync<UserLogin>()
-            let token = Authentication.Jwt.generateJwtToken user
-            return! Successful.OK ({| token = token |}) next ctx
+            let! user = ctx.BindJsonAsync<UserLogin>() 
+            let dbUser = User.Repository.GetByEmail user.EmailAddress
+            //TODO check userpassword (implement Bcrypt) 
+            match dbUser with
+            | Some user -> 
+                let token = Authentication.Jwt.generateJwtToken user 
+                return! Successful.OK ({| token = token |}) next ctx
+            | None -> 
+                return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Email and Password" "" next ctx
         }
 
 
@@ -62,7 +70,7 @@ let webApp =
             ]
         POST >=> choose [
             route "/account/login" >=> loginHandler
-            route "/account/create" >=> bindJson<CreateUserCommand> (fun com -> (User.Handlers.CreateUserHandler User.Impl.SaveUser com) |> Successful.OK)
+            route "/account/create" >=> bindJson<CreateUserCommand> (fun com -> (Handlers.CreateUserHandler User.Repository.SaveUser com) |> Successful.OK)
             route "/google-login" >=> Successful.OK("Success")
         ]
         setStatusCode 404 >=> text "Not Found" ]
@@ -96,9 +104,7 @@ let configureApp (app : IApplicationBuilder) =
         .UseAuthentication()
         .UseGiraffe(webApp)
 
-let jwtBearerOptions (section: IConfigurationSection) (cfg : JwtBearerOptions) =
-   let secret = section.["Secret"]
-   Authentication.Jwt.jwtSecret <- Some secret
+let jwtBearerOptions (secret: string) (cfg : JwtBearerOptions) =
    let key = Encoding.ASCII.GetBytes secret
    cfg.SaveToken <- true
    cfg.IncludeErrorDetails <- true
@@ -114,7 +120,8 @@ let jwtBearerOptions (section: IConfigurationSection) (cfg : JwtBearerOptions) =
 
 let configureServices (services : IServiceCollection) =
     let provider = services.BuildServiceProvider()
-    let bearerOptions = jwtBearerOptions <| provider.GetService<IConfiguration>().GetSection("Authentication:Jwt")
+    let secret =  provider.GetService<IConfiguration>().GetSection("Authentication:Jwt").["Secret"]
+    let bearerOptions = jwtBearerOptions <| secret 
     Builder.setSettings() 
     services.AddCors()    |> ignore
     services.AddGiraffe() |> ignore
@@ -122,6 +129,7 @@ let configureServices (services : IServiceCollection) =
             o.DefaultAuthenticateScheme <- JwtBearerDefaults.AuthenticationScheme
             o.DefaultChallengeScheme <- JwtBearerDefaults.AuthenticationScheme
         ).AddJwtBearer(Action<JwtBearerOptions> bearerOptions) |> ignore
+    services.SetJwtSecret(secret)
 
 let configureLogging (builder : ILoggingBuilder) =
     builder.AddConsole()
