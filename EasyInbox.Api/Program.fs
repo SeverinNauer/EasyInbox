@@ -13,11 +13,10 @@ open Microsoft.Extensions.Configuration
 open FSharp.Control.Tasks.V2.ContextInsensitive
 open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.IdentityModel.Tokens
-open Authentication.User
 open System.Text
 open System.Security.Claims
-open User.Commands
-open User
+open EasyInbox.CQService.User.Commands
+open EasyInbox.CQService.User
 open EasyInbox.Persistence
 open Authentication.Jwt
 
@@ -39,26 +38,19 @@ let signinHandler: HttpHandler =
 let loginHandler: HttpHandler = 
     fun (next: HttpFunc)(ctx: HttpContext) ->
         task {
-            let! user = ctx.BindJsonAsync<UserLogin>() 
-            let dbUser = User.Repository.GetByEmail user.EmailAddress
-            //TODO check userpassword (implement Bcrypt) 
-            match dbUser with
-            | Some user -> 
+            let! user = ctx.BindJsonAsync<LoginCommand>() 
+            let isValid = Helpers.ValidateUser User.Repository.GetByEmail user
+            match isValid with
+            | true -> 
                 let token = Authentication.Jwt.generateJwtToken user 
                 return! Successful.OK ({| token = token |}) next ctx
-            | None -> 
+            | false -> 
                 return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Email and Password" "" next ctx
         }
 
 
-
-let authenticate : HttpHandler =
-   requiresAuthentication <| RequestErrors.BAD_REQUEST ""
-
-
 let authorize =
     requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme)
-
 
 let webApp =
     choose [
@@ -88,7 +80,7 @@ let errorHandler (ex : Exception) (logger : ILogger) =
 // ---------------------------------
 
 let configureCors (builder : CorsPolicyBuilder) =
-    builder.WithOrigins("http://localhost:8080")
+    builder.WithOrigins("http://localhost:3000")
            .AllowAnyMethod()
            .AllowAnyHeader()
            |> ignore
