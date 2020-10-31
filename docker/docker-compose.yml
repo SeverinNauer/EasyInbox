@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+    postgres:
+        image: ${POSTGRES_IMAGE}
+        restart: always
+        ports: 
+            - ${POSTGRES_HOST_PORT}:5432
+        env_file: ${POSTGRES_ENV_FILE}
+        volumes:
+        - pgdata:/var/lib/postgresql/data
+        networks:
+            - ${NETWORK}
+
+    pgadmin:
+        image: ${PGADMIN_IMAGE}
+        restart: always
+        env_file: ${PGADMIN_ENV_FILE}
+        environment: 
+            PGADMIN_LISTEN_PORT: 80
+        ports:
+            - ${PGADMIN_HOST_POST}:80
+        links: 
+            - "postgres:postgres"
+        volumes: 
+            - pgadmin-data:/var/lib/pgadmin
+        networks:
+            - ${NETWORK}
+
+networks:
+    easyinbox-network:
+        name: ${NETWORK}
+        driver: bridge
+
+volumes: 
+    pgdata:
+        external: true
+    pgadmin-data:
+        external: true
