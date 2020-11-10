@@ -15,8 +15,8 @@ open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.IdentityModel.Tokens
 open System.Text
 open System.Security.Claims
-open EasyInbox.CQService.User.Commands
-open EasyInbox.CQService.User
+open EasyInbox.CQService.UserCommands
+open EasyInbox.CQService
 open EasyInbox.Persistence
 open Authentication.Jwt
 
@@ -39,7 +39,7 @@ let loginHandler: HttpHandler =
     fun (next: HttpFunc)(ctx: HttpContext) ->
         task {
             let! user = ctx.BindJsonAsync<LoginCommand>() 
-            let isValid = Helpers.ValidateUser User.Repository.GetByEmail user
+            let isValid = UserHelpers.ValidateUser UserRepository.GetByEmail user
             match isValid with
             | true -> 
                 let token = Authentication.Jwt.generateJwtToken user 
@@ -62,7 +62,7 @@ let webApp =
             ]
         POST >=> choose [
             route "/account/login" >=> loginHandler
-            route "/account/create" >=> bindJson<CreateUserCommand> (fun com -> (Handlers.CreateUserHandler User.Repository.SaveUser com) |> Successful.OK)
+            route "/account/create" >=> bindJson<CreateUserCommand> (fun com -> (UserHandlers.CreateUserHandler UserRepository.SaveUser com) |> Successful.OK)
             route "/google-login" >=> Successful.OK("Success")
         ]
         setStatusCode 404 >=> text "Not Found" ]

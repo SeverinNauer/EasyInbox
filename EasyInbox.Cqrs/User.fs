@@ -1,6 +1,6 @@
-﻿namespace EasyInbox.CQService.User
+﻿namespace EasyInbox.CQService
 
-module Commands =
+module UserCommands =
     
     type CreateUserCommand = {
         EmailAddress: string
@@ -13,25 +13,26 @@ module Commands =
     }
 
 
-module Handlers = 
-    open Commands
-    open EasyInbox.Persistence.User.Repository
+module UserHandlers = 
+    open EasyInbox.Persistence.UserRepository
+    open UserCommands
     open EasyInbox.Persistence.Types
     open System
     open BCrypt.Net
 
-    //TODO encrypt password
     type CreateUserHandler = CreateUserCommand -> Result<string, string>
 
     let CreateUserHandler (save: SaveUser): CreateUserHandler = 
         fun command ->   
-            let user = { UserId = Guid.NewGuid() ; Email = command.EmailAddress; Password = BCrypt.HashPassword(command.Password) }
-            save user
+            { UserId = Guid.NewGuid()  
+              Email = command.EmailAddress 
+              Password = BCrypt.HashPassword(command.Password) } 
+              |> save
 
-module Helpers = 
-    open EasyInbox.Persistence.User.Repository
+module UserHelpers = 
+    open EasyInbox.Persistence.UserRepository
     open BCrypt.Net
-    open Commands
+    open UserCommands
 
     let ValidateUser (getUserFromDb: GetByEmail) (command: LoginCommand) =
         let dbUser = getUserFromDb command.EmailAddress 

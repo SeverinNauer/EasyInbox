@@ -1,8 +1,8 @@
-﻿namespace EasyInbox.Persistence.User
+﻿namespace EasyInbox.Persistence
 
 open System
 
-module Repository =
+module UserRepository =
     open Context
     open LinqToDB
     open EasyInbox.Persistence.Types
@@ -25,7 +25,7 @@ module Repository =
                 exactlyOneOrDefault
             } |> defaultToOption
 
-    let GetById: GetById = 
+    let GetById : GetById = 
         fun uId ->
             use db = new Connection()
             query {

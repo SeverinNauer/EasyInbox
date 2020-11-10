@@ -8,12 +8,15 @@ module Jwt =
     open System.Text
     open System.IdentityModel.Tokens.Jwt
     open System
-    open EasyInbox.CQService.User.Commands
+    open EasyInbox.CQService.UserCommands
 
     let mutable private jwtSecret: string option = Option.None
 
     type Microsoft.Extensions.DependencyInjection.IServiceCollection with
         member x.SetJwtSecret(secret)= jwtSecret <- Some secret
+
+    type System.Security.Claims.ClaimTypes with
+        static member Sub = "sub"
 
     
     let generateJwtToken (user: LoginCommand) =
@@ -23,7 +26,7 @@ module Jwt =
             let key = Encoding.ASCII.GetBytes(key)
             let descriptor = 
                 SecurityTokenDescriptor(
-                    Subject = ClaimsIdentity([Claim(ClaimTypes.Name, user.EmailAddress)]), 
+                    Subject = ClaimsIdentity([Claim(ClaimTypes.Email, user.EmailAddress); Claim(ClaimTypes.Sub, user.EmailAddress)]), 
                     Expires = System.Nullable(DateTime.UtcNow.AddMinutes(15.0)), 
                     SigningCredentials= SigningCredentials(SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)
                 )
