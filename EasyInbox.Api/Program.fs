@@ -15,10 +15,12 @@ open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.IdentityModel.Tokens
 open System.Text
 open System.Security.Claims
-open EasyInbox.CQService.UserCommands
-open EasyInbox.CQService
-open EasyInbox.Persistence
+open EasyInbox
 open Authentication.Jwt
+open BCrypt.Net
+open EasyInbox.Core.Types
+open EasyInbox.Persistence
+open EasyInbox.User
 
 
 
@@ -35,19 +37,55 @@ let signinHandler: HttpHandler =
         let list = ctx.User.Claims |> Seq.toList
         Successful.OK("Sucess") next ctx
 
+let createCommand data = {
+    Timestamp = new DateTime()
+    Data = data
+    Id = Guid.NewGuid()
+}
+
 let loginHandler: HttpHandler = 
     fun (next: HttpFunc)(ctx: HttpContext) ->
         task {
-            let! user = ctx.BindJsonAsync<LoginCommand>() 
-            let isValid = UserHelpers.ValidateUser UserRepository.GetByEmail user
-            match isValid with
-            | true -> 
-                let token = Authentication.Jwt.generateJwtToken user 
-                return! Successful.OK ({| token = token |}) next ctx
-            | false -> 
-                return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Email and Password" "" next ctx
+            let! user = ctx.BindJsonAsync<User.LoginCommand>()
+            
+            let validate password passwordStr = 
+                BCrypt.Verify(passwordStr, password |> User.Password.value)
+            
+            let dbUser = UserRepository.GetByEmail user.EmailAddress
+            match dbUser with
+            | Some dbUser -> 
+                let isValid = 
+                    User.isValidLogin 
+                        validate 
+                        (dbUser) 
+                        (createCommand <| user) 
+                match isValid with
+                | true -> 
+                    let token = Authentication.Jwt.generateJwtToken user 
+                    return! Successful.OK ({| token = token |}) next ctx
+                | false -> 
+                    return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Email or Password" "" next ctx
+            | None ->
+                return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Email or Password" "" next ctx
         }
 
+let hashPassword pwd = 
+    BCrypt.HashPassword(pwd) 
+    |> User.Password.create
+
+let createUser: HttpHandler = 
+    fun next ctx ->
+        task {
+            let! user = ctx.BindJsonAsync<User.CreateUserCommand>()
+            let userCmd = createCommand user
+            let res = User.createUser hashPassword userCmd
+            match res with
+            | Ok user -> 
+                UserRepository.SaveUser user |> ignore
+                return! Successful.OK ("Successfully Saved") next ctx
+            | Error err -> 
+                return! RequestErrors.BAD_REQUEST err next ctx
+        }
 
 let authorize =
     requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme)
@@ -62,7 +100,7 @@ let webApp =
             ]
         POST >=> choose [
             route "/account/login" >=> loginHandler
-            route "/account/create" >=> bindJson<CreateUserCommand> (fun com -> (UserHandlers.CreateUserHandler UserRepository.SaveUser com) |> Successful.OK)
+            route "/account/create" >=> createUser
             route "/google-login" >=> Successful.OK("Success")
         ]
         setStatusCode 404 >=> text "Not Found" ]

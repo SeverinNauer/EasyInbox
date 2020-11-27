@@ -1,11 +1,25 @@
 ﻿namespace EasyInbox.Persistence
 
 open System
+open EasyInbox.User
+
+module Mapper = 
+    open EasyInbox.Persistence
+    open EasyInbox.Core
+    let toDomain (dbUser: Types.User) = 
+        let email = Types.EmailAddress.create dbUser.Email
+        match email with
+        | Ok email -> ({
+            EmailAddress = email
+            UserId = UserId.create dbUser.UserId
+            Password = Password.create dbUser.Password
+        })
+        | Error err -> failwith err
+        
 
 module UserRepository =
     open Context
     open LinqToDB
-    open EasyInbox.Persistence.Types
 
     type SaveUser = User -> Result<string,string>
     type GetById = Guid -> User option
@@ -20,19 +34,23 @@ module UserRepository =
         fun email -> 
             use db = new Connection()
             query {
-                for user in db.GetTable<User>() do
+                for user in db.GetTable<Types.User>() do
                 where (user.Email = email)
                 exactlyOneOrDefault
-            } |> defaultToOption
+            } 
+            |> defaultToOption 
+            |> Option.map Mapper.toDomain
 
     let GetById : GetById = 
         fun uId ->
             use db = new Connection()
             query {
-               for user in db.GetTable<User>() do
+               for user in db.GetTable<Types.User>() do
                where (user.UserId = uId)
                exactlyOneOrDefault 
-            } |> defaultToOption
+            } 
+            |> defaultToOption 
+            |> Option.map Mapper.toDomain
 
     let SaveUser: SaveUser = 
         fun user -> 

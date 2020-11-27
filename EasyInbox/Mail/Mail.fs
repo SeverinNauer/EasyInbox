@@ -1,10 +1,10 @@
 ﻿module Mail
 
 open MailKit
-open EasyInbox.Core
 open MimeKit
 open System
 open Account
+open EasyInbox.Core.Types
 
 type ContactInformation = {
     Sender: EmailAddress
