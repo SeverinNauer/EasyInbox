@@ -19,8 +19,15 @@ open EasyInbox.CQService.UserCommands
 open EasyInbox.CQService
 open EasyInbox.Persistence
 open Authentication.Jwt
-
-
+open Google.Apis.Auth.OAuth2.Flows
+open Google.Apis.Util.Store
+open Google.Apis.Auth.OAuth2
+open Google.Apis.Drive.v3
+open Google.Apis.Auth.OAuth2.Web
+open System.Threading
+open Google.Apis.Requests
+open Microsoft.AspNetCore.Http
+open System.IO
 
 let authorizedHandler: HttpHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
@@ -39,32 +46,83 @@ let loginHandler: HttpHandler =
     fun (next: HttpFunc)(ctx: HttpContext) ->
         task {
             let! user = ctx.BindJsonAsync<LoginCommand>() 
+            let dbUser = UserRepository.GetByEmail user.EmailAddress
             let isValid = UserHelpers.ValidateUser UserRepository.GetByEmail user
-            match isValid with
-            | true -> 
-                let token = Authentication.Jwt.generateJwtToken user 
+            match isValid, dbUser with
+            | true, Some dbUser -> 
+                let token = Authentication.Jwt.generateJwtToken dbUser 
                 return! Successful.OK ({| token = token |}) next ctx
-            | false -> 
-                return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Email and Password" "" next ctx
+            | _, _ -> 
+                return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Login Data" "Incorrect Login Data" next ctx
+        }
+
+let getGoogleFlow () = 
+    use stream = new FileStream(@".\Secrets\gmailsecret.apps.googleusercontent.com.json", FileMode.Open, FileAccess.Read)
+    let secrets = GoogleClientSecrets.Load(stream).Secrets
+    new GoogleAuthorizationCodeFlow(
+        GoogleAuthorizationCodeFlow.Initializer(
+            DataStore = FileDataStore("EasyInbox.Google.Drive"),
+            ClientSecrets = secrets,
+            Scopes = [DriveService.Scope.Drive]
+        ) 
+    )
+let getUserId (ctx: HttpContext) = 
+    ctx.User.Claims 
+    |> Seq.tryFind (fun c -> c.Type = ClaimTypes.NameIdentifier) 
+    |> function 
+        | Some claim -> Some claim.Value 
+        | None -> None
+let addStorageHandler: HttpHandler = 
+    fun (next: HttpFunc)(ctx: HttpContext) ->
+        task {
+           let idOp = getUserId ctx 
+           match idOp with 
+           | Some id -> 
+                use flow = getGoogleFlow () 
+                let! res = AuthorizationCodeWebApp(flow,"http://localhost:3000/gdrivecallback","gdrivestorage").AuthorizeAsync(id ,CancellationToken.None) 
+                return! Successful.OK (res.RedirectUri) next ctx 
+           | None -> 
+                return! RequestErrors.BAD_REQUEST "Invalid Authorization" next ctx
+        }
+
+type GoogleDriveCallback = {
+    State: string
+    Code: string
+}
+
+
+
+let googleDriveCallback: HttpHandler = 
+    fun next ctx ->
+        task {
+            let id = ctx |> getUserId |> Option.defaultValue ""
+            let! {State = state; Code = code} = ctx.BindJsonAsync<GoogleDriveCallback>() 
+            let uri = ctx.Request.Scheme + "://" + ctx.Request.Host.Value + ctx.Request.Path 
+            use flow = getGoogleFlow ()
+            flow.ExchangeCodeForTokenAsync(id,code,"http://localhost:3000/gdrivecallback", CancellationToken.None).Result |> ignore
+            let result = AuthWebUtility.ExtracRedirectFromState(flow.DataStore, id, state).Result
+            return! redirectTo false result next ctx
         }
 
 
-let authorize =
-    requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme)
+let authorize = requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme)
 
 let webApp =
     choose [
-        GET >=>
-            choose [
-                route "/" >=> text "Hello World"
-                route "/secured" >=> authorize >=> authorizedHandler
-                routef "/hello/%s" helloHandler
-            ]
+        GET >=> choose [
+            route "/" >=> text "Hello World"
+        ]
         POST >=> choose [
             route "/account/login" >=> loginHandler
             route "/account/create" >=> bindJson<CreateUserCommand> (fun com -> (UserHandlers.CreateUserHandler UserRepository.SaveUser com) |> Successful.OK)
-            route "/google-login" >=> Successful.OK("Success")
         ]
+        subRoute "/storage" authorize >=>
+            choose [
+                POST >=> choose [
+                    route "/add" >=> addStorageHandler
+                    route "/add/gdrive/callback" >=> googleDriveCallback
+                ]
+            ]
         setStatusCode 404 >=> text "Not Found" ]
 
 // ---------------------------------

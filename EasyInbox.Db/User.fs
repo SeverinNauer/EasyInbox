@@ -14,7 +14,7 @@ module UserRepository =
     let private defaultToOption<'a when 'a : equality>  = 
         function
         | user when user = Unchecked.defaultof<'a> -> None 
-        | _ as u -> Some u
+        | u -> Some u
 
     let GetByEmail: GetByEmail = 
         fun email -> 
@@ -45,4 +45,4 @@ module UserRepository =
                 match ex.SqlState with 
                 | "23505" -> Error("Entity with same data already in database") //TODO figure out error handling 
                 | _ -> Error(ex.MessageText)
-            | _ as ex -> Error(sprintf "%s:%s" <| ex.GetType().FullName <| ex.Message) 
+            | ex -> Error(sprintf "%s:%s" <| ex.GetType().FullName <| ex.Message) 

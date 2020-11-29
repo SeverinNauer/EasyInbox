@@ -5,11 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Storage.fs" />
     <Compile Include="User.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.49.0" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.49.0.2145" />
   </ItemGroup>
 
   <ItemGroup>
