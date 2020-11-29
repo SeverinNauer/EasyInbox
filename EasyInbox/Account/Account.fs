@@ -2,6 +2,7 @@
 
 open EasyInbox.Core
 open MailKit.Security
+open EasyInbox.Core.Types
 
 type AuthorizedAccount = {
     Email: EmailAddress

@@ -15,19 +15,12 @@ open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.IdentityModel.Tokens
 open System.Text
 open System.Security.Claims
-open EasyInbox.CQService.UserCommands
-open EasyInbox.CQService
-open EasyInbox.Persistence
+open EasyInbox
 open Authentication.Jwt
-open Google.Apis.Auth.OAuth2.Flows
-open Google.Apis.Util.Store
-open Google.Apis.Auth.OAuth2
-open Google.Apis.Drive.v3
-open Google.Apis.Auth.OAuth2.Web
-open System.Threading
-open Google.Apis.Requests
-open Microsoft.AspNetCore.Http
-open System.IO
+open BCrypt.Net
+open EasyInbox.Core.Types
+open EasyInbox.Persistence
+open EasyInbox.User
 
 let authorizedHandler: HttpHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
@@ -41,6 +34,12 @@ let signinHandler: HttpHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         let list = ctx.User.Claims |> Seq.toList
         Successful.OK("Sucess") next ctx
+
+let createCommand data = {
+    Timestamp = new DateTime()
+    Data = data
+    Id = Guid.NewGuid()
+}
 
 let loginHandler: HttpHandler = 
     fun (next: HttpFunc)(ctx: HttpContext) ->
@@ -104,6 +103,23 @@ let googleDriveCallback: HttpHandler =
             return! redirectTo false result next ctx
         }
 
+let hashPassword pwd = 
+    BCrypt.HashPassword(pwd) 
+    |> User.Password.create
+
+let createUser: HttpHandler = 
+    fun next ctx ->
+        task {
+            let! user = ctx.BindJsonAsync<User.CreateUserCommand>()
+            let userCmd = createCommand user
+            let res = User.createUser hashPassword userCmd
+            match res with
+            | Ok user -> 
+                UserRepository.SaveUser user |> ignore
+                return! Successful.OK ("Successfully Saved") next ctx
+            | Error err -> 
+                return! RequestErrors.BAD_REQUEST err next ctx
+        }
 
 let authorize = requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme)
 

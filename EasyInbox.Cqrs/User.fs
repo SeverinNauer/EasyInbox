@@ -27,7 +27,7 @@ module UserHandlers =
             { UserId = Guid.NewGuid()  
               Email = command.EmailAddress 
               Password = BCrypt.HashPassword(command.Password) } 
-              |> save
+              |> save |> Ok
 
 module UserHelpers = 
     open EasyInbox.Persistence.UserRepository
