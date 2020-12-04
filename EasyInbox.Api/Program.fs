@@ -15,12 +15,20 @@ open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.IdentityModel.Tokens
 open System.Text
 open System.Security.Claims
-open EasyInbox
 open Authentication.Jwt
 open BCrypt.Net
-open EasyInbox.Core.Types
-open EasyInbox.Persistence
-open EasyInbox.User
+open Google.Apis.Auth.OAuth2.Web
+open System.IO
+open Google.Apis.Auth.OAuth2
+open Google.Apis.Auth.OAuth2.Flows
+open Google.Apis.Util.Store
+open CoreTypes
+open Persistence
+open Domain.User
+open Domain
+open Google.Apis.Drive.v3
+open System.Threading
+open Persistence
 
 let authorizedHandler: HttpHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
@@ -45,13 +53,18 @@ let loginHandler: HttpHandler =
     fun (next: HttpFunc)(ctx: HttpContext) ->
         task {
             let! user = ctx.BindJsonAsync<LoginCommand>() 
-            let dbUser = UserRepository.GetByEmail user.EmailAddress
-            let isValid = UserHelpers.ValidateUser UserRepository.GetByEmail user
-            match isValid, dbUser with
-            | true, Some dbUser -> 
-                let token = Authentication.Jwt.generateJwtToken dbUser 
-                return! Successful.OK ({| token = token |}) next ctx
-            | _, _ -> 
+            let dbUser = Persistence.User.GetByEmail user.EmailAddress
+            let validatePw dbPw pw = dbPw |> Password.value = pw
+            let validateUser = User.isValidLogin validatePw
+            match dbUser with
+            | Some dbUser -> 
+                let loginCmd = createCommand user
+                if validateUser <| dbUser <| loginCmd then
+                    let token = Authentication.Jwt.generateJwtToken dbUser 
+                    return! Successful.OK ({| token = token |}) next ctx
+                else 
+                    return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Login Data" "Incorrect Login Data" next ctx
+            | _ -> 
                 return! RequestErrors.UNAUTHORIZED "Unauthorized"  "Incorrect Login Data" "Incorrect Login Data" next ctx
         }
 
@@ -78,7 +91,7 @@ let addStorageHandler: HttpHandler =
            match idOp with 
            | Some id -> 
                 use flow = getGoogleFlow () 
-                let! res = AuthorizationCodeWebApp(flow,"http://localhost:3000/gdrivecallback","gdrivestorage").AuthorizeAsync(id ,CancellationToken.None) 
+                let! res = AuthorizationCodeWebApp(flow,"http://localhost:3000/gdrivecallback","gdrivestorage").AuthorizeAsync(id , CancellationToken.None) 
                 return! Successful.OK (res.RedirectUri) next ctx 
            | None -> 
                 return! RequestErrors.BAD_REQUEST "Invalid Authorization" next ctx
@@ -105,17 +118,17 @@ let googleDriveCallback: HttpHandler =
 
 let hashPassword pwd = 
     BCrypt.HashPassword(pwd) 
-    |> User.Password.create
+    |> Domain.Password.create
 
 let createUser: HttpHandler = 
     fun next ctx ->
         task {
             let! user = ctx.BindJsonAsync<User.CreateUserCommand>()
             let userCmd = createCommand user
-            let res = User.createUser hashPassword userCmd
+            let res = User.create hashPassword userCmd
             match res with
-            | Ok user -> 
-                UserRepository.SaveUser user |> ignore
+            | Ok (User user) ->
+                Persistence.User.Save user |> ignore
                 return! Successful.OK ("Successfully Saved") next ctx
             | Error err -> 
                 return! RequestErrors.BAD_REQUEST err next ctx
@@ -130,7 +143,7 @@ let webApp =
         ]
         POST >=> choose [
             route "/account/login" >=> loginHandler
-            route "/account/create" >=> bindJson<CreateUserCommand> (fun com -> (UserHandlers.CreateUserHandler UserRepository.SaveUser com) |> Successful.OK)
+            route "/account/create" >=> createUser
         ]
         subRoute "/storage" authorize >=>
             choose [
@@ -188,7 +201,7 @@ let configureServices (services : IServiceCollection) =
     let provider = services.BuildServiceProvider()
     let secret =  provider.GetService<IConfiguration>().GetSection("Authentication:Jwt").["Secret"]
     let bearerOptions = jwtBearerOptions <| secret 
-    Builder.setSettings() 
+    Persistence.Config.Builder.setSettings() 
     services.AddCors()    |> ignore
     services.AddGiraffe() |> ignore
     services.AddAuthentication(fun o -> 

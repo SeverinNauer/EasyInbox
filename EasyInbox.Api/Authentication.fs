@@ -2,8 +2,7 @@
 
 open Microsoft.IdentityModel.Tokens
 open System.Security.Claims
-open EasyInbox.Persistence.Types
-   
+open Domain
 
 module Jwt = 
     open System.Text
@@ -23,7 +22,7 @@ module Jwt =
             let descriptor = 
                 SecurityTokenDescriptor(
                     Subject = ClaimsIdentity(
-                        [Claim(ClaimTypes.Email, user.Email); 
+                        [Claim(ClaimTypes.Email, user.EmailAddress.Value); 
                         Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())]
                     ), 
                     Expires = System.Nullable(DateTime.UtcNow.AddMinutes(15.0)), 

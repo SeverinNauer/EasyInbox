@@ -1,4 +1,5 @@
-﻿namespace EasyInbox.Persistence
+﻿[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Persistence.Config
 
 open LinqToDB.Configuration
 

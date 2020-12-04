@@ -5,10 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Domain.fs" />
     <Compile Include="User.fs" />
-    <Compile Include="Account\Account.fs" />
-    <Compile Include="Mail\Mail.fs" />
-    <Compile Include="Mail\Inbox.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,11 +1,9 @@
-﻿namespace EasyInbox.Persistence
+﻿namespace Persistence
 
-module Types = 
+open System
 
-    open System
-
-    type User = {
-      UserId: Guid
-      Email: string
-      Password: string
-    }
+type User = {
+    UserId: Guid
+    Email: string
+    Password: string
+}
