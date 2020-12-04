@@ -12,10 +12,16 @@ let toDomain (dbUser: User): Domain.User =
     match email with
     | Ok email -> ({
         EmailAddress = email
-        UserId = UserId.create dbUser.UserId
+        Id = UserId.create dbUser.UserId
         Password = Password.create dbUser.Password
     })
     | Error err -> failwith err
+
+let fromDomain (domainUser: Domain.User) = {
+        UserId = domainUser.Id |> UserId.value
+        Email = domainUser.EmailAddress.Value
+        Password = domainUser.Password |> Password.value
+    }
         
 
 type SaveUser = Domain.User -> Result<string,string>
@@ -31,7 +37,7 @@ let GetByEmail: GetByEmail =
     fun email -> 
         use db = new Connection()
         query {
-            for user in db.GetTable<Persistence.User>() do
+            for user in db.GetTable<User>() do
             where (user.Email = email)
             exactlyOneOrDefault
         } 
@@ -42,7 +48,7 @@ let GetById : GetById =
     fun uId ->
         use db = new Connection()
         query {
-            for user in db.GetTable<Persistence.User>() do
+            for user in db.GetTable<User>() do
             where (user.UserId = uId)
             exactlyOneOrDefault 
         } 
@@ -53,7 +59,8 @@ let Save: SaveUser =
     fun user -> 
         use db = new Connection() 
         try 
-            db.Insert(user) |> ignore
+            let dbUser = user |> fromDomain
+            db.Insert<User>(dbUser) |> ignore
             Ok("Successfully saved")
         with
         | :? Npgsql.PostgresException as ex ->

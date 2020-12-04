@@ -23,7 +23,7 @@ module Jwt =
                 SecurityTokenDescriptor(
                     Subject = ClaimsIdentity(
                         [Claim(ClaimTypes.Email, user.EmailAddress.Value); 
-                        Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())]
+                        Claim(ClaimTypes.NameIdentifier, user.Id.ToString())]
                     ), 
                     Expires = System.Nullable(DateTime.UtcNow.AddMinutes(15.0)), 
                     SigningCredentials= SigningCredentials(SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)

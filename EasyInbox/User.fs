@@ -33,7 +33,7 @@ let create: CreateUser =
         match email with
         | Ok email -> Ok <| UserCreated.User ({
             EmailAddress = email
-            UserId = Guid.NewGuid() |> UserId.create 
+            Id = Guid.NewGuid() |> UserId.create 
             Password = cmd.Data.Password |> hash
             }) 
         | Error err -> Error(err)

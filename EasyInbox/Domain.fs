@@ -16,7 +16,7 @@ module Password =
     let value (Password pw) = pw
 
 type User = {
-    UserId: UserId
+    Id: UserId
     EmailAddress: EmailAddress
     Password: Password
 }
